@@ -17,5 +17,17 @@ def main():
         "Authorization": "Basic {}".format(encoded)
     }
 
+    payload = {
+        "grant_type": "client_credentials"
+    }
+
+    r = requests.post(endpoint, data=payload, headers=headers)
+
+    access_token = json.loads(r.text)['access_token']
+
+    headers = {
+        "Authorization": "Bearer {}".format(access_token)
+    }
+
 if __name__=='__main__':
     main()
