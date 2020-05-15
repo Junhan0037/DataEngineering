@@ -5,8 +5,8 @@ import json
 import logging
 import time
 
-client_id = "8d0c1ff1b39046a5bac58c0d81709a02" # Client ID
-client_secret = "583215fe489f467a8c580e7c57df0600" # Client Secret
+client_id = "" # Client ID
+client_secret = "" # Client Secret
 
 # Spotify API
 # Use the access token to access the Spotify Web API
@@ -55,7 +55,9 @@ def main():
     next = raw['next']
 
     albums = []
-    albums.extend(raw['items'])
+    albums.extend(raw['items']) # limit default 값이 20이므로 20개가 들어온다.
+    print(next)
+    print(albums)
 
     while next:
         r = requests.get(next, headers=headers)
@@ -63,7 +65,8 @@ def main():
         next = raw['next']
         print(next)
 
-        albums.extend(raw['items'])
+        albums.extend(raw['items']) # limit default 값이 20이므로 20개씩 추가된다.
+        print(albums)
 
     print(len(albums))
     sys.exit(0)
