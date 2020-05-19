@@ -4,31 +4,62 @@ import base64
 import json
 import logging
 import time
+import pymysql
 
 client_id = "" # Client ID
 client_secret = "" # Client Secret
+
+host = ""
+port = 3306
+username = "junhan"
+database = "production"
+password = ""
+
 
 # Spotify API
 # Use the access token to access the Spotify Web API
 def main():
 
+    try:
+        conn = pymysql.connect(host, user=username, passwd=password, db=database, port=port, use_unicode=True, charset='utf8')
+        cursor = conn.cursor()
+    except:
+        logging.error("could not connect to DB")
+        sys.exit(1)
+
     headers = get_headers(client_id, client_secret)
 
-    ## Spotify Search API
+    # Spotify Search API
     params = {
         "q": "BTS",
         "type": "artist",
-        "limit": "5"
+        "limit": "1"
     }
 
     r = requests.get("https://api.spotify.com/v1/search", params=params, headers=headers)
 
-    # 예외 처리
-    try:
-        r = requests.get("https://api.spotify.com/v1/search", params=params, headers=headers)
-    except:
-        logging.error(r.text)
-        sys.exit(1) # 강제 멈춤
+    raw = json.loads(r.text)
+    print(raw['artists'].keys())
+
+    print(raw['artists']['items'][0].keys())
+
+    artist_raw = raw['artists']['items'][0]
+
+    if artist_raw['name'] == params['q']:
+
+        artist = {
+                'id': artist_raw['id'],
+                'name': artist_raw['name'],
+                'followers': artist_raw['followers']['total'],
+                'popularity': artist_raw['popularity'],
+                'url': artist_raw['external_urls']['spotify'],
+                'image_url': artist_raw['images'][0]['url']
+        }
+
+    insert_row(cursor, artist, 'artists')
+    conn.commit()
+
+    sys.exit(0)
 
     r = requests.get("https://api.spotify.com/v1/search", params=params, headers=headers)
 
@@ -56,17 +87,16 @@ def main():
 
     albums = []
     albums.extend(raw['items']) # limit default 값이 20이므로 20개가 들어온다.
-    print(next)
     print(albums)
+    print(next)
 
     while next:
         r = requests.get(next, headers=headers)
         raw = json.loads(r.text)
         next = raw['next']
-        print(next)
-
         albums.extend(raw['items']) # limit default 값이 20이므로 20개씩 추가된다.
         print(albums)
+        print(next)
 
     print(len(albums))
     sys.exit(0)
@@ -95,6 +125,16 @@ def get_headers(client_id, client_secret):
     }
 
     return headers
+
+
+# Duplicate Record 핸들링
+def insert_row(cursor, data, table):
+
+    placeholders = ', '.join(['%s'] * len(data)) # '%s', '%s', ...
+    columns = ', '.join(data.keys())
+    key_placeholders = ', '.join(['{0}=%s'.format(k) for k in data.keys()])
+    sql = "INSERT INTO %s ( %s ) VALUES ( %s ) ON DUPLICATE KEY UPDATE %s" % (table, columns, placeholders, key_placeholders)
+    cursor.execute(sql, list(data.values())*2)
 
 
 if __name__=='__main__':
