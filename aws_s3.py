@@ -96,6 +96,7 @@ def main():
     object.put(Body=data)
 
     # artists.parquet
+    cursor.execute("SELECT * FROM artists")
     colnames = [d[0] for d in cursor.description]
     artists = [dict(zip(colnames, row)) for row in cursor.fetchall()]
     artists = pd.DataFrame(artists)
