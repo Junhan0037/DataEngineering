@@ -15,7 +15,7 @@ client_secret = "" # Client Secret
 host = ""
 port = 3306
 username = "junhan"
-database = "production"
+database = ""
 password = ""
 
 def main():
@@ -95,6 +95,18 @@ def main():
     data = open('audio-features.parquet', 'rb')
     object.put(Body=data)
 
+    # artists.parquet
+    colnames = [d[0] for d in cursor.description]
+    artists = [dict(zip(colnames, row)) for row in cursor.fetchall()]
+    artists = pd.DataFrame(artists)
+
+    artists.to_parquet('artists.parquet', engine='pyarrow', compression='snappy')
+
+    # S3 import
+    s3 = boto3.resource('s3')
+    object = s3.Object('fastcampus-spotify', 'artists/dt={}/artists.parquet'.format(dt))
+    data = open('artists.parquet', 'rb')
+    object.put(Body=data)
 
 # Have your application request authorization (get access_token)
 def get_headers(client_id, client_secret):
