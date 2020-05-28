@@ -12,7 +12,7 @@ client_secret = "" # Client Secret
 host = ""
 port = 3306
 username = "junhan"
-database = "production"
+database = ""
 password = ""
 
 def main():
@@ -89,4 +89,4 @@ def get_headers(client_id, client_secret):
 
 
 if __name__ == '__main__':
-        main()
+    main()
