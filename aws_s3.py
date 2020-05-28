@@ -64,13 +64,13 @@ def main():
 
     # list of dictionariescls
     top_tracks = pd.DataFrame(top_tracks)
-    top_tracks.to_parquet('top_tracks.parquet', engine='pyarrow', compression='snappy') # Spark에 적합한 parquet형식으로 변형.
+    top_tracks.to_parquet('top-tracks.parquet', engine='pyarrow', compression='snappy') # Spark에 적합한 parquet형식으로 변형.
 
     dt = datetime.utcnow().strftime("%Y-%m-%d")
 
     # S3 import
     s3 = boto3.resource('s3')
-    object = s3.Object('fastcampus-spotify', 'top-tracks/dt={}/top_tracks.parquet'.format(dt))
+    object = s3.Object('fastcampus-spotify', 'top-tracks/dt={}/top-tracks.parquet'.format(dt))
     data = open('top-tracks.parquet', 'rb')
     object.put(Body=data)
 
