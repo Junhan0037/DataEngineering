@@ -15,8 +15,8 @@ client_secret = "" # Client Secret
 
 host = ""
 port = 3306
-username = "junhan"
-database = "production"
+username = ""
+database = ""
 password = ""
 
 def main():
@@ -70,7 +70,7 @@ def main():
 
     # S3 import
     s3 = boto3.resource('s3')
-    object = s3.Object('fastcampus-spotify', 'top_tracks/dt={}/top_tracks.parquet'.format(dt))
+    object = s3.Object('fastcampus-spotify', 'top-tracks/dt={}/top_tracks.parquet'.format(dt))
     data = open('top-tracks.parquet', 'rb')
     object.put(Body=data)
 
