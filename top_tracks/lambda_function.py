@@ -1,5 +1,6 @@
 import sys
 sys.path.append('./libs')
+import os
 import boto3
 import requests
 import base64
@@ -7,8 +8,8 @@ import json
 import logging
 
 
-client_id = "" # Client ID
-client_secret = "" # Client Secret
+client_id = ""
+client_secret = ""
 
 try:
     dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-2', endpoint_url='http://dynamodb.ap-northeast-2.amazonaws.com')
@@ -25,10 +26,11 @@ def lambda_handler(event, context):
 
     artist_id = event['artist_id']
 
-    URL = "https://api.spotify.com/v1/artists/{}/top_tracks".format(artist_id)
+    URL = "https://api.spotify.com/v1/artists/{}/top-tracks".format(artist_id)
     params = {
         'country': 'US'
     }
+
     r = requests.get(URL, params=params, headers=headers)
 
     raw = json.loads(r.text)
